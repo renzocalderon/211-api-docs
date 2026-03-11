@@ -1,0 +1,1058 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "211 Ontario - Search API",
+        "description": "Search 211 Ontario resources using a range of parameters to filter the response",
+        "termsOfService": "https://example.com/terms",
+        "contact": {
+            "name": "211 Ontario",
+            "url": "https://211ontario.ca/",
+            "email": "support@211ontario.org"
+        },
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://ontario211apis.azure-api.net/search"
+        }
+    ],
+    "paths": {
+        "/api/Details/ServiceAtLocation": {
+            "get": {
+                "tags": [
+                    "Details"
+                ],
+                "summary": "Service At Location",
+                "description": "Returns a service at location record.",
+                "operationId": "get-api-details-serviceatlocation",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "service at location id",
+                        "schema": {
+                            "type": "string",
+                            "default": "79189025"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/api/Search/Keyword": {
+            "get": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Search",
+                "description": "Searches an index of 211 Ontario resource service at location records. \r\n\r\nRecords are returned in 'service-at-locationn' format, with all services and locations of the organization. For more options, use the POST method. \r\n\r\nThe total number of records in the index matching the request is identified as \"countAvailable\" at the top of the response. The values set for each parameter are also returned at the top of the response.",
+                "operationId": "get-api-search-keyword",
+                "parameters": [
+                    {
+                        "name": "keywords",
+                        "in": "query",
+                        "description": "one or more words to search for resources (note: to match all entered words, set searchMode to 'all'.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "city, county, zipcode or state to search for locations (note: set distance to restrict searches to number of miles from location. if searchWithinLocation set to true, resources within location's geographic boundary are returned.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "distance",
+                        "in": "query",
+                        "description": "Format - int32. number of kilometers from entered location (note: if searchWithinLocation is set to 'true', distance is not applicable).",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "description": "Format - int32. number of organization records to skip.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "take",
+                        "in": "query",
+                        "description": "Format - int32. number of organization records to return.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "searchWithinLocation",
+                        "in": "query",
+                        "description": "search for resources within geographic boundary of location.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "searchMode",
+                        "in": "query",
+                        "description": "set to 'any' to match on one or more entered keywords, or set to 'all' to match on all entered keywords.",
+                        "schema": {
+                            "type": "string",
+                            "default": "any"
+                        }
+                    },
+                    {
+                        "name": "useGeocodeService",
+                        "in": "query",
+                        "description": "set to 'true' to geocode location for either distance or searchWithinLocation searches.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchOutput"
+                                },
+                                "examples": {
+                                    "default": {
+                                        "value": null
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchOutput"
+                                },
+                                "example": {
+                                    "count": 0,
+                                    "results": [
+                                        {
+                                            "score": 0,
+                                            "highlights": {},
+                                            "semanticSearch": {
+                                                "rerankerScore": 0,
+                                                "captions": [
+                                                    {
+                                                        "text": "string",
+                                                        "highlights": "string",
+                                                        "additionalProperties": {}
+                                                    }
+                                                ]
+                                            },
+                                            "document": {
+                                                "idServiceAtLocation": "string",
+                                                "idOrganization": "string",
+                                                "idService": "string",
+                                                "idLocation": "string",
+                                                "nameOrganization": "string",
+                                                "nameService": "string",
+                                                "nameLocation": "string",
+                                                "nameServiceAtLocation": "string",
+                                                "alternateNamesOrganization": [
+                                                    "string"
+                                                ],
+                                                "alternateNamesService": [
+                                                    "string"
+                                                ],
+                                                "descriptionOrganization": "string",
+                                                "descriptionService": "string",
+                                                "address": {
+                                                    "streetAddress": "string",
+                                                    "city": "string",
+                                                    "county": "string",
+                                                    "stateProvince": "string",
+                                                    "postalCode": "string",
+                                                    "country": "string",
+                                                    "latitude": "string",
+                                                    "longitude": "string"
+                                                },
+                                                "taxonomy": [
+                                                    {
+                                                        "taxonomyTerm": "string",
+                                                        "taxonomyCode": "string",
+                                                        "taxonomyTermLevel1": "string",
+                                                        "taxonomyTermLevel2": "string",
+                                                        "taxonomyTermLevel3": "string",
+                                                        "taxonomyTermLevel4": "string",
+                                                        "taxonomyTermLevel5": "string",
+                                                        "taxonomyTermLevel6": "string",
+                                                        "linkedTerm": "string",
+                                                        "linedTerm2": "string"
+                                                    }
+                                                ],
+                                                "serviceAreas": [
+                                                    {
+                                                        "type": "string",
+                                                        "value": "string"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "facets": {}
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchOutput"
+                                },
+                                "example": {
+                                    "count": 0,
+                                    "results": [
+                                        {
+                                            "score": 0,
+                                            "highlights": {},
+                                            "semanticSearch": {
+                                                "rerankerScore": 0,
+                                                "captions": [
+                                                    {
+                                                        "text": "string",
+                                                        "highlights": "string",
+                                                        "additionalProperties": {}
+                                                    }
+                                                ]
+                                            },
+                                            "document": {
+                                                "idServiceAtLocation": "string",
+                                                "idOrganization": "string",
+                                                "idService": "string",
+                                                "idLocation": "string",
+                                                "nameOrganization": "string",
+                                                "nameService": "string",
+                                                "nameLocation": "string",
+                                                "nameServiceAtLocation": "string",
+                                                "alternateNamesOrganization": [
+                                                    "string"
+                                                ],
+                                                "alternateNamesService": [
+                                                    "string"
+                                                ],
+                                                "descriptionOrganization": "string",
+                                                "descriptionService": "string",
+                                                "address": {
+                                                    "streetAddress": "string",
+                                                    "city": "string",
+                                                    "county": "string",
+                                                    "stateProvince": "string",
+                                                    "postalCode": "string",
+                                                    "country": "string",
+                                                    "latitude": "string",
+                                                    "longitude": "string"
+                                                },
+                                                "taxonomy": [
+                                                    {
+                                                        "taxonomyTerm": "string",
+                                                        "taxonomyCode": "string",
+                                                        "taxonomyTermLevel1": "string",
+                                                        "taxonomyTermLevel2": "string",
+                                                        "taxonomyTermLevel3": "string",
+                                                        "taxonomyTermLevel4": "string",
+                                                        "taxonomyTermLevel5": "string",
+                                                        "taxonomyTermLevel6": "string",
+                                                        "linkedTerm": "string",
+                                                        "linedTerm2": "string"
+                                                    }
+                                                ],
+                                                "serviceAreas": [
+                                                    {
+                                                        "type": "string",
+                                                        "value": "string"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "facets": {}
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Search",
+                "description": "Searches an index of 211 Ontario resource service at location records. \r\n\r\nRecords are returned in 'service-at-locationn' format, with all services and locations of the organization.\r\n\r\nThe total number of records in the index matching the request is identified as \"countAvailable\" at the top of the response. The values set for each parameter are also returned at the top of the response.\r\n\r\nNote: Active and Inactive organizations can be returned. Set the 'includeInactive' filter to true to return both active and inactive records. Default value is set to 'false', returning only active records.",
+                "operationId": "post-api-search-keyword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SearchInputDto"
+                            },
+                            "example": {
+                                "search": "*",
+                                "location": "Grimsby",
+                                "distance": 10,
+                                "searchWithinLocation": true,
+                                "searchWithinLocationType": "city",
+                                "useGecodeService": true,
+                                "size": 10,
+                                "skip": 0,
+                                "includeTotalCount": true,
+                                "filters": [],
+                                "facets": [
+                                    "taxonomy/taxonomyTermLevel1",
+                                    "taxonomy/taxonomyTermLevel2",
+                                    "address/stateProvince",
+                                    "serviceAreas/value"
+                                ],
+                                "searchFields": [
+                                    "descriptionService",
+                                    "nameOrganization",
+                                    "nameService",
+                                    "alternateNamesOrganization",
+                                    "alternateNamesService"
+                                ],
+                                "selectFields": [
+                                    "idServiceAtLocation",
+                                    "idService",
+                                    "idLocation",
+                                    "idOrganization",
+                                    "nameOrganization",
+                                    "descriptionOrganization",
+                                    "nameService",
+                                    "descriptionService",
+                                    "nameLocation",
+                                    "nameServiceAtLocation",
+                                    "alternateNamesService",
+                                    "alternateNamesOrganization",
+                                    "address",
+                                    "taxonomy",
+                                    "serviceAreas"
+                                ],
+                                "searchMode": "any"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SearchInputDto"
+                            },
+                            "example": {
+                                "search": "*",
+                                "location": "Grimsby",
+                                "distance": 10,
+                                "searchWithinLocation": true,
+                                "searchWithinLocationType": "city",
+                                "useGecodeService": true,
+                                "size": 10,
+                                "skip": 0,
+                                "includeTotalCount": true,
+                                "filters": [],
+                                "facets": [
+                                    "taxonomy/taxonomyTermLevel1",
+                                    "taxonomy/taxonomyTermLevel2",
+                                    "address/stateProvince",
+                                    "serviceAreas/value"
+                                ],
+                                "searchFields": [
+                                    "descriptionService",
+                                    "nameOrganization",
+                                    "nameService",
+                                    "alternateNamesOrganization",
+                                    "alternateNamesService"
+                                ],
+                                "selectFields": [
+                                    "idServiceAtLocation",
+                                    "idService",
+                                    "idLocation",
+                                    "idOrganization",
+                                    "nameOrganization",
+                                    "descriptionOrganization",
+                                    "nameService",
+                                    "descriptionService",
+                                    "nameLocation",
+                                    "nameServiceAtLocation",
+                                    "alternateNamesService",
+                                    "alternateNamesOrganization",
+                                    "address",
+                                    "taxonomy",
+                                    "serviceAreas"
+                                ],
+                                "searchMode": "any"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SearchInputDto"
+                            },
+                            "example": {
+                                "search": "*",
+                                "location": "Grimsby",
+                                "distance": 10,
+                                "searchWithinLocation": true,
+                                "searchWithinLocationType": "city",
+                                "useGecodeService": true,
+                                "size": 10,
+                                "skip": 0,
+                                "includeTotalCount": true,
+                                "filters": [],
+                                "facets": [
+                                    "taxonomy/taxonomyTermLevel1",
+                                    "taxonomy/taxonomyTermLevel2",
+                                    "address/stateProvince",
+                                    "serviceAreas/value"
+                                ],
+                                "searchFields": [
+                                    "descriptionService",
+                                    "nameOrganization",
+                                    "nameService",
+                                    "alternateNamesOrganization",
+                                    "alternateNamesService"
+                                ],
+                                "selectFields": [
+                                    "idServiceAtLocation",
+                                    "idService",
+                                    "idLocation",
+                                    "idOrganization",
+                                    "nameOrganization",
+                                    "descriptionOrganization",
+                                    "nameService",
+                                    "descriptionService",
+                                    "nameLocation",
+                                    "nameServiceAtLocation",
+                                    "alternateNamesService",
+                                    "alternateNamesOrganization",
+                                    "address",
+                                    "taxonomy",
+                                    "serviceAreas"
+                                ],
+                                "searchMode": "any"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchOutput"
+                                },
+                                "examples": {
+                                    "default": {
+                                        "value": null
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchOutput"
+                                },
+                                "example": {
+                                    "count": 0,
+                                    "results": [
+                                        {
+                                            "score": 0,
+                                            "highlights": {},
+                                            "semanticSearch": {
+                                                "rerankerScore": 0,
+                                                "captions": [
+                                                    {
+                                                        "text": "string",
+                                                        "highlights": "string",
+                                                        "additionalProperties": {}
+                                                    }
+                                                ]
+                                            },
+                                            "document": {
+                                                "idServiceAtLocation": "string",
+                                                "idOrganization": "string",
+                                                "idService": "string",
+                                                "idLocation": "string",
+                                                "nameOrganization": "string",
+                                                "nameService": "string",
+                                                "nameLocation": "string",
+                                                "nameServiceAtLocation": "string",
+                                                "alternateNamesOrganization": [
+                                                    "string"
+                                                ],
+                                                "alternateNamesService": [
+                                                    "string"
+                                                ],
+                                                "descriptionOrganization": "string",
+                                                "descriptionService": "string",
+                                                "address": {
+                                                    "streetAddress": "string",
+                                                    "city": "string",
+                                                    "county": "string",
+                                                    "stateProvince": "string",
+                                                    "postalCode": "string",
+                                                    "country": "string",
+                                                    "latitude": "string",
+                                                    "longitude": "string"
+                                                },
+                                                "taxonomy": [
+                                                    {
+                                                        "taxonomyTerm": "string",
+                                                        "taxonomyCode": "string",
+                                                        "taxonomyTermLevel1": "string",
+                                                        "taxonomyTermLevel2": "string",
+                                                        "taxonomyTermLevel3": "string",
+                                                        "taxonomyTermLevel4": "string",
+                                                        "taxonomyTermLevel5": "string",
+                                                        "taxonomyTermLevel6": "string",
+                                                        "linkedTerm": "string",
+                                                        "linedTerm2": "string"
+                                                    }
+                                                ],
+                                                "serviceAreas": [
+                                                    {
+                                                        "type": "string",
+                                                        "value": "string"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "facets": {}
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchOutput"
+                                },
+                                "example": {
+                                    "count": 0,
+                                    "results": [
+                                        {
+                                            "score": 0,
+                                            "highlights": {},
+                                            "semanticSearch": {
+                                                "rerankerScore": 0,
+                                                "captions": [
+                                                    {
+                                                        "text": "string",
+                                                        "highlights": "string",
+                                                        "additionalProperties": {}
+                                                    }
+                                                ]
+                                            },
+                                            "document": {
+                                                "idServiceAtLocation": "string",
+                                                "idOrganization": "string",
+                                                "idService": "string",
+                                                "idLocation": "string",
+                                                "nameOrganization": "string",
+                                                "nameService": "string",
+                                                "nameLocation": "string",
+                                                "nameServiceAtLocation": "string",
+                                                "alternateNamesOrganization": [
+                                                    "string"
+                                                ],
+                                                "alternateNamesService": [
+                                                    "string"
+                                                ],
+                                                "descriptionOrganization": "string",
+                                                "descriptionService": "string",
+                                                "address": {
+                                                    "streetAddress": "string",
+                                                    "city": "string",
+                                                    "county": "string",
+                                                    "stateProvince": "string",
+                                                    "postalCode": "string",
+                                                    "country": "string",
+                                                    "latitude": "string",
+                                                    "longitude": "string"
+                                                },
+                                                "taxonomy": [
+                                                    {
+                                                        "taxonomyTerm": "string",
+                                                        "taxonomyCode": "string",
+                                                        "taxonomyTermLevel1": "string",
+                                                        "taxonomyTermLevel2": "string",
+                                                        "taxonomyTermLevel3": "string",
+                                                        "taxonomyTermLevel4": "string",
+                                                        "taxonomyTermLevel5": "string",
+                                                        "taxonomyTermLevel6": "string",
+                                                        "linkedTerm": "string",
+                                                        "linedTerm2": "string"
+                                                    }
+                                                ],
+                                                "serviceAreas": [
+                                                    {
+                                                        "type": "string",
+                                                        "value": "string"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "facets": {}
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Address": {
+                "type": "object",
+                "properties": {
+                    "streetAddress": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "county": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "stateProvince": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "latitude": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "FacetValue": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "count": {
+                        "type": "integer",
+                        "format": "int64",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LocationType": {
+                "enum": [
+                    "city",
+                    "county",
+                    "postalCode",
+                    "state",
+                    "country"
+                ],
+                "type": "string"
+            },
+            "QueryCaptionResult": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "highlights": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "nullable": true
+                        },
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SearchFilter": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "description": "The name of the search field to filter on. The filter fields are:\r\nlist of filter fields here",
+                        "nullable": true
+                    },
+                    "value": {
+                        "description": "The value to filter the field on. Refer to examples for value format and sample data values.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "SearchFilter value that identifies the field to filter and the value of the field to be filtered on"
+            },
+            "SearchInputDto": {
+                "type": "object",
+                "properties": {
+                    "search": {
+                        "type": "string",
+                        "description": "Enter one or more keywords to search the repository. Set SearchMode to 'Any' to match on at least one entered\r\nword, or SearchModel to 'All' to match on all words. If Hybrid search set to true, results will be returned\r\nregardless of SearchMode.",
+                        "nullable": true
+                    },
+                    "location": {
+                        "type": "string",
+                        "description": "Location for search",
+                        "nullable": true
+                    },
+                    "distance": {
+                        "type": "integer",
+                        "description": "Location for search",
+                        "format": "int32"
+                    },
+                    "searchWithinLocation": {
+                        "type": "boolean",
+                        "description": "If set to true (and geocoding service set to true), search for all resources within the locations geoPolygonlkSearch within Locationearch"
+                    },
+                    "searchWithinLocationType": {
+                        "$ref": "#/components/schemas/LocationType"
+                    },
+                    "useGecodeService": {
+                        "type": "boolean",
+                        "description": "Set to 'true' to use built-in geo service to get geocode point and geocode polygon data, for use with geo.distance and geo.intersects functions."
+                    },
+                    "size": {
+                        "type": "integer",
+                        "description": "Number of results to be returned",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "skip": {
+                        "type": "integer",
+                        "description": "Number of results to skip",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "includeTotalCount": {
+                        "type": "boolean",
+                        "description": "Include total number of results available for return. If Size is less than value returned by total count,\r\nuse Skip to get remaining results",
+                        "nullable": true
+                    },
+                    "filters": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SearchFilter"
+                        },
+                        "description": "Filters that include/exclude results. Filters include:\r\nlist here",
+                        "nullable": true
+                    },
+                    "facets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Facets returned with results that can be used to resubmit search with filter values",
+                        "nullable": true
+                    },
+                    "searchFields": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of fields that will be searched in 'simple text' search. Full list of fields is:",
+                        "nullable": true
+                    },
+                    "selectFields": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of fields to return in search results. Full list of fields is:\r\nlist fields here",
+                        "nullable": true
+                    },
+                    "searchMode": {
+                        "type": "string",
+                        "description": "Set to 'any' to match one or more entered search words in simple text search. Set to 'all' to match on all words.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Configures search and results"
+            },
+            "SearchOutput": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "format": "int64",
+                        "nullable": true
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SearchResourceSearchResult"
+                        },
+                        "nullable": true
+                    },
+                    "facets": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/FacetValue"
+                            }
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SearchResource": {
+                "type": "object",
+                "properties": {
+                    "idServiceAtLocation": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "idOrganization": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "idService": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "idLocation": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nameOrganization": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nameService": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nameLocation": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nameServiceAtLocation": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "alternateNamesOrganization": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "alternateNamesService": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "descriptionOrganization": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "descriptionService": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "taxonomy": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Taxonomy"
+                        },
+                        "nullable": true
+                    },
+                    "serviceAreas": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ServiceArea"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SearchResourceSearchResult": {
+                "type": "object",
+                "properties": {
+                    "score": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "highlights": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "nullable": true
+                        },
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "semanticSearch": {
+                        "$ref": "#/components/schemas/SemanticSearchResult"
+                    },
+                    "document": {
+                        "$ref": "#/components/schemas/SearchResource"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SemanticSearchResult": {
+                "type": "object",
+                "properties": {
+                    "rerankerScore": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "captions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QueryCaptionResult"
+                        },
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ServiceArea": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "value": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "Taxonomy": {
+                "type": "object",
+                "properties": {
+                    "taxonomyTerm": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomyCode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomyTermLevel1": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomyTermLevel2": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomyTermLevel3": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomyTermLevel4": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomyTermLevel5": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomyTermLevel6": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "linkedTerm": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "linedTerm2": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "Api-Key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKeyHeader": []
+        },
+        {
+            "apiKeyQuery": []
+        }
+    ]
+}
