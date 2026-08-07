@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "211 Ontario - Search API",
+        "title": "211 Ontario - Resources Search API (clone)",
         "description": "Search 211 Ontario resources using a range of parameters to filter the response",
         "termsOfService": "https://example.com/terms",
         "contact": {
@@ -13,18 +13,18 @@
     },
     "servers": [
         {
-            "url": "https://ontario211apis.azure-api.net/search"
+            "url": "https://ontario211apis.azure-api.net/resources-clone"
         }
     ],
     "paths": {
-        "/api/Details/ServiceAtLocation": {
+        "/service-at-location": {
             "get": {
                 "tags": [
                     "Details"
                 ],
                 "summary": "Service At Location",
                 "description": "Returns a service at location record.",
-                "operationId": "get-api-details-serviceatlocation",
+                "operationId": "get-service-at-location",
                 "parameters": [
                     {
                         "name": "id",
@@ -46,14 +46,14 @@
                 }
             }
         },
-        "/api/Search/Keyword": {
+        "/search": {
             "get": {
                 "tags": [
                     "Search"
                 ],
                 "summary": "Search",
                 "description": "Searches an index of 211 Ontario resource service at location records. \r\n\r\nRecords are returned in 'service-at-locationn' format, with all services and locations of the organization. For more options, use the POST method. \r\n\r\nThe total number of records in the index matching the request is identified as \"countAvailable\" at the top of the response. The values set for each parameter are also returned at the top of the response.",
-                "operationId": "get-api-search-keyword",
+                "operationId": "get-search-keyword",
                 "parameters": [
                     {
                         "name": "keywords",
@@ -305,7 +305,7 @@
                 ],
                 "summary": "Search",
                 "description": "Searches an index of 211 Ontario resource service at location records. \r\n\r\nRecords are returned in 'service-at-locationn' format, with all services and locations of the organization.\r\n\r\nThe total number of records in the index matching the request is identified as \"countAvailable\" at the top of the response. The values set for each parameter are also returned at the top of the response.\r\n\r\nNote: Active and Inactive organizations can be returned. Set the 'includeInactive' filter to true to return both active and inactive records. Default value is set to 'false', returning only active records.",
-                "operationId": "post-api-search-keyword",
+                "operationId": "post-search-keyword",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -474,70 +474,7 @@
                                 },
                                 "example": {
                                     "count": 0,
-                                    "results": [
-                                        {
-                                            "score": 0,
-                                            "highlights": {},
-                                            "semanticSearch": {
-                                                "rerankerScore": 0,
-                                                "captions": [
-                                                    {
-                                                        "text": "string",
-                                                        "highlights": "string",
-                                                        "additionalProperties": {}
-                                                    }
-                                                ]
-                                            },
-                                            "document": {
-                                                "idServiceAtLocation": "string",
-                                                "idOrganization": "string",
-                                                "idService": "string",
-                                                "idLocation": "string",
-                                                "nameOrganization": "string",
-                                                "nameService": "string",
-                                                "nameLocation": "string",
-                                                "nameServiceAtLocation": "string",
-                                                "alternateNamesOrganization": [
-                                                    "string"
-                                                ],
-                                                "alternateNamesService": [
-                                                    "string"
-                                                ],
-                                                "descriptionOrganization": "string",
-                                                "descriptionService": "string",
-                                                "address": {
-                                                    "streetAddress": "string",
-                                                    "city": "string",
-                                                    "county": "string",
-                                                    "stateProvince": "string",
-                                                    "postalCode": "string",
-                                                    "country": "string",
-                                                    "latitude": "string",
-                                                    "longitude": "string"
-                                                },
-                                                "taxonomy": [
-                                                    {
-                                                        "taxonomyTerm": "string",
-                                                        "taxonomyCode": "string",
-                                                        "taxonomyTermLevel1": "string",
-                                                        "taxonomyTermLevel2": "string",
-                                                        "taxonomyTermLevel3": "string",
-                                                        "taxonomyTermLevel4": "string",
-                                                        "taxonomyTermLevel5": "string",
-                                                        "taxonomyTermLevel6": "string",
-                                                        "linkedTerm": "string",
-                                                        "linedTerm2": "string"
-                                                    }
-                                                ],
-                                                "serviceAreas": [
-                                                    {
-                                                        "type": "string",
-                                                        "value": "string"
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    ],
+                                    "results": [],
                                     "facets": {}
                                 }
                             },
@@ -547,70 +484,7 @@
                                 },
                                 "example": {
                                     "count": 0,
-                                    "results": [
-                                        {
-                                            "score": 0,
-                                            "highlights": {},
-                                            "semanticSearch": {
-                                                "rerankerScore": 0,
-                                                "captions": [
-                                                    {
-                                                        "text": "string",
-                                                        "highlights": "string",
-                                                        "additionalProperties": {}
-                                                    }
-                                                ]
-                                            },
-                                            "document": {
-                                                "idServiceAtLocation": "string",
-                                                "idOrganization": "string",
-                                                "idService": "string",
-                                                "idLocation": "string",
-                                                "nameOrganization": "string",
-                                                "nameService": "string",
-                                                "nameLocation": "string",
-                                                "nameServiceAtLocation": "string",
-                                                "alternateNamesOrganization": [
-                                                    "string"
-                                                ],
-                                                "alternateNamesService": [
-                                                    "string"
-                                                ],
-                                                "descriptionOrganization": "string",
-                                                "descriptionService": "string",
-                                                "address": {
-                                                    "streetAddress": "string",
-                                                    "city": "string",
-                                                    "county": "string",
-                                                    "stateProvince": "string",
-                                                    "postalCode": "string",
-                                                    "country": "string",
-                                                    "latitude": "string",
-                                                    "longitude": "string"
-                                                },
-                                                "taxonomy": [
-                                                    {
-                                                        "taxonomyTerm": "string",
-                                                        "taxonomyCode": "string",
-                                                        "taxonomyTermLevel1": "string",
-                                                        "taxonomyTermLevel2": "string",
-                                                        "taxonomyTermLevel3": "string",
-                                                        "taxonomyTermLevel4": "string",
-                                                        "taxonomyTermLevel5": "string",
-                                                        "taxonomyTermLevel6": "string",
-                                                        "linkedTerm": "string",
-                                                        "linedTerm2": "string"
-                                                    }
-                                                ],
-                                                "serviceAreas": [
-                                                    {
-                                                        "type": "string",
-                                                        "value": "string"
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    ],
+                                    "results": [],
                                     "facets": {}
                                 }
                             }
@@ -1037,22 +911,14 @@
         "securitySchemes": {
             "apiKeyHeader": {
                 "type": "apiKey",
-                "name": "Api-Key",
+                "name": "Ocp-Apim-Subscription-Key",
                 "in": "header"
-            },
-            "apiKeyQuery": {
-                "type": "apiKey",
-                "name": "api-key",
-                "in": "query"
             }
         }
     },
     "security": [
         {
             "apiKeyHeader": []
-        },
-        {
-            "apiKeyQuery": []
         }
     ]
 }
