@@ -2,14 +2,14 @@
     "openapi": "3.0.1",
     "info": {
         "title": "211 Ontario - Resources Search API (clone)",
-        "description": "Search 211 Ontario resources using a range of parameters to filter the response",
+        "description": "Search 211 Ontario resources using a range of parameters to filter the response.\n\n## Two-call pattern\n`/search` returns an 18-field summary record and does **not** include contact details. Phone, website, hours, languages offered, accessibility, fees and application process are available only from `GET /serviceatlocation/{id}`, keyed on the `serviceAtLocationId` returned by search. Plan for one detail call per record you intend to display in full.\n\n## Request and response names differ\nField names you **send** (searchFields, selectFields, filters, facets) are index names such as `nameOrganization` and `descriptionService`. Field names you **receive** are different: `organizationName`, `serviceDescription`. Results are wrapped in `item`, not `document`. Both sets are documented below; do not assume one applies to the other.\n\n## Silent failures to be aware of\nUnrecognised `filters[].field` values and unrecognised body properties are discarded without error, returning HTTP 200 and unfiltered results. The geocoding flag on POST is spelled `useGecodeService`; the correctly spelled variant is ignored. See the SearchInputDto property descriptions.\n\n## CORS\nNo CORS headers are returned, so browser clients cannot call this API directly. Call it from a server-side proxy.\n\nVerified against the deployed clone API on 13 Aug 2026.",
         "termsOfService": "https://example.com/terms",
         "contact": {
             "name": "211 Ontario",
             "url": "https://211ontario.ca/",
             "email": "support@211ontario.org"
         },
-        "version": "1.0"
+        "version": "1.1"
     },
     "servers": [
         {
@@ -17,31 +17,205 @@
         }
     ],
     "paths": {
-        "/service-at-location": {
+        "/serviceatlocation/{id}": {
             "get": {
                 "tags": [
                     "Details"
                 ],
-                "summary": "Service At Location",
-                "description": "Returns a service at location record.",
+                "summary": "Service At Location Details",
+                "description": "Returns the full service-at-location record, including contact details, hours, languages offered and accessibility information.\n\nThe path is `/serviceatlocation/{id}` - no hyphens, and the id is a path segment. Earlier revisions of this document described `/service-at-location?id=...`, which does not exist and returns 404 for every id.\n\nUse the `serviceAtLocationId` from a search result as the id.",
                 "operationId": "get-service-at-location",
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "query",
-                        "description": "service at location id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Service-at-location id, as returned in `results[].item.serviceAtLocationId` by /search.",
                         "schema": {
-                            "type": "string",
-                            "default": "79189025"
-                        }
+                            "type": "string"
+                        },
+                        "example": "69799414"
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceAtLocationDetail"
+                                },
+                                "example": {
+                                    "serviceAtLocationId": "69799414",
+                                    "organizationId": "69799411",
+                                    "serviceId": "69799413",
+                                    "locationId": "69799412",
+                                    "serviceAtLocationName": "Bloor West Food Bank at Toronto",
+                                    "organizationName": "Bethany Church Food Bank",
+                                    "serviceName": "Bloor West Food Bank",
+                                    "locationName": "Toronto",
+                                    "address": {
+                                        "address1": "1041 Pape Ave",
+                                        "address2": null,
+                                        "city": "Toronto",
+                                        "county": "Toronto",
+                                        "stateProvince": "ON",
+                                        "postalCode": "M4K 3W1",
+                                        "country": "Canada",
+                                        "type": "Physical"
+                                    },
+                                    "serviceAtLocationStatus": "Active",
+                                    "organizationStatus": "Active",
+                                    "serviceStatus": "Active",
+                                    "locationStatus": "Active",
+                                    "serviceAlternateNames": [],
+                                    "serviceDescription": "Food bank, serving inside - line up on Cosburn Ave.",
+                                    "taxonomy": [
+                                        {
+                                            "code": "BD-1800.2000",
+                                            "term": "Food Banks",
+                                            "level1Name": "Basic Needs",
+                                            "level2Name": "Food",
+                                            "level3Name": "Emergency Food",
+                                            "level4Name": "Food Banks",
+                                            "level5Name": null
+                                        }
+                                    ],
+                                    "serviceHoursText": "Thu 1:15 pm-3 pm",
+                                    "serviceHoursStandard": [
+                                        {
+                                            "day": "Thu",
+                                            "open": "1:15 PM",
+                                            "close": "3:00 PM"
+                                        }
+                                    ],
+                                    "locationHoursText": null,
+                                    "locationHoursStandard": [],
+                                    "website": "http://www.bethanychurcheastyork.com/food-bank/",
+                                    "fees": "None",
+                                    "applicationProcess": "New clients need to register online.",
+                                    "documentsRequired": "Government issued identification for each member of the household.",
+                                    "languagesOffered": [
+                                        "English"
+                                    ],
+                                    "serviceAreas": [
+                                        {
+                                            "type": "County",
+                                            "value": "Toronto"
+                                        }
+                                    ],
+                                    "servicePhones": [
+                                        {
+                                            "number": "416-479-0015 ext 202",
+                                            "name": "Office",
+                                            "type": "Custom",
+                                            "description": null
+                                        }
+                                    ],
+                                    "serviceContacts": [
+                                        {
+                                            "name": "Barbara Parker",
+                                            "title": "Coordinator",
+                                            "emailAddress": null,
+                                            "phoneNumber": null
+                                        }
+                                    ],
+                                    "locationPhones": [],
+                                    "locationContacts": [],
+                                    "disabilitiesAccess": "Wheelchair accessible - come to Cosburn doors"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceAtLocationDetail"
+                                },
+                                "example": {
+                                    "serviceAtLocationId": "69799414",
+                                    "organizationId": "69799411",
+                                    "serviceId": "69799413",
+                                    "locationId": "69799412",
+                                    "serviceAtLocationName": "Bloor West Food Bank at Toronto",
+                                    "organizationName": "Bethany Church Food Bank",
+                                    "serviceName": "Bloor West Food Bank",
+                                    "locationName": "Toronto",
+                                    "address": {
+                                        "address1": "1041 Pape Ave",
+                                        "address2": null,
+                                        "city": "Toronto",
+                                        "county": "Toronto",
+                                        "stateProvince": "ON",
+                                        "postalCode": "M4K 3W1",
+                                        "country": "Canada",
+                                        "type": "Physical"
+                                    },
+                                    "serviceAtLocationStatus": "Active",
+                                    "organizationStatus": "Active",
+                                    "serviceStatus": "Active",
+                                    "locationStatus": "Active",
+                                    "serviceAlternateNames": [],
+                                    "serviceDescription": "Food bank, serving inside - line up on Cosburn Ave.",
+                                    "taxonomy": [
+                                        {
+                                            "code": "BD-1800.2000",
+                                            "term": "Food Banks",
+                                            "level1Name": "Basic Needs",
+                                            "level2Name": "Food",
+                                            "level3Name": "Emergency Food",
+                                            "level4Name": "Food Banks",
+                                            "level5Name": null
+                                        }
+                                    ],
+                                    "serviceHoursText": "Thu 1:15 pm-3 pm",
+                                    "serviceHoursStandard": [
+                                        {
+                                            "day": "Thu",
+                                            "open": "1:15 PM",
+                                            "close": "3:00 PM"
+                                        }
+                                    ],
+                                    "locationHoursText": null,
+                                    "locationHoursStandard": [],
+                                    "website": "http://www.bethanychurcheastyork.com/food-bank/",
+                                    "fees": "None",
+                                    "applicationProcess": "New clients need to register online.",
+                                    "documentsRequired": "Government issued identification for each member of the household.",
+                                    "languagesOffered": [
+                                        "English"
+                                    ],
+                                    "serviceAreas": [
+                                        {
+                                            "type": "County",
+                                            "value": "Toronto"
+                                        }
+                                    ],
+                                    "servicePhones": [
+                                        {
+                                            "number": "416-479-0015 ext 202",
+                                            "name": "Office",
+                                            "type": "Custom",
+                                            "description": null
+                                        }
+                                    ],
+                                    "serviceContacts": [
+                                        {
+                                            "name": "Barbara Parker",
+                                            "title": "Coordinator",
+                                            "emailAddress": null,
+                                            "phoneNumber": null
+                                        }
+                                    ],
+                                    "locationPhones": [],
+                                    "locationContacts": [],
+                                    "disabilitiesAccess": "Wheelchair accessible - come to Cosburn doors"
+                                }
+                            }
+                        }
+                    },
                     "400": {
                         "description": "Bad Request"
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found - no record with that id."
                     }
                 }
             }
@@ -52,13 +226,13 @@
                     "Search"
                 ],
                 "summary": "Search",
-                "description": "Searches an index of 211 Ontario resource service at location records. \r\n\r\nRecords are returned in 'service-at-locationn' format, with all services and locations of the organization. For more options, use the POST method. \r\n\r\nThe total number of records in the index matching the request is identified as \"countAvailable\" at the top of the response. The values set for each parameter are also returned at the top of the response.",
+                "description": "Searches the index of 211 Ontario service-at-location records.\n\n`location` is REQUIRED on this operation; omitting it returns HTTP 400 with `{\"errors\":{\"location\":[\"The location field is required.\"]}}`. Use the POST operation for filters, facets, field selection, or to search without a location.\n\nThe total number of matching records is returned as `count` at the top of the response.",
                 "operationId": "get-search-keyword",
                 "parameters": [
                     {
                         "name": "keywords",
                         "in": "query",
-                        "description": "one or more words to search for resources (note: to match all entered words, set searchMode to 'all'.",
+                        "description": "One or more words to search for. To match all entered words, set searchMode to 'all'.",
                         "schema": {
                             "type": "string"
                         }
@@ -66,7 +240,8 @@
                     {
                         "name": "location",
                         "in": "query",
-                        "description": "city, county, zipcode or state to search for locations (note: set distance to restrict searches to number of miles from location. if searchWithinLocation set to true, resources within location's geographic boundary are returned.",
+                        "required": true,
+                        "description": "REQUIRED. City, county, postal code or province. Set distance to restrict results to a radius; set searchWithinLocation to true to return resources inside the location's boundary.",
                         "schema": {
                             "type": "string"
                         }
@@ -74,7 +249,7 @@
                     {
                         "name": "distance",
                         "in": "query",
-                        "description": "Format - int32. number of kilometers from entered location (note: if searchWithinLocation is set to 'true', distance is not applicable).",
+                        "description": "Number of kilometres from the entered location. Not applicable when searchWithinLocation is true.",
                         "schema": {
                             "type": "integer",
                             "format": "int32",
@@ -84,7 +259,7 @@
                     {
                         "name": "skip",
                         "in": "query",
-                        "description": "Format - int32. number of organization records to skip.",
+                        "description": "Number of records to skip.",
                         "schema": {
                             "type": "integer",
                             "format": "int32",
@@ -94,7 +269,7 @@
                     {
                         "name": "take",
                         "in": "query",
-                        "description": "Format - int32. number of organization records to return.",
+                        "description": "Number of records to return.",
                         "schema": {
                             "type": "integer",
                             "format": "int32",
@@ -104,7 +279,7 @@
                     {
                         "name": "searchWithinLocation",
                         "in": "query",
-                        "description": "search for resources within geographic boundary of location.",
+                        "description": "Search within the geographic boundary of the location.",
                         "schema": {
                             "type": "boolean",
                             "default": false
@@ -113,7 +288,7 @@
                     {
                         "name": "searchMode",
                         "in": "query",
-                        "description": "set to 'any' to match on one or more entered keywords, or set to 'all' to match on all entered keywords.",
+                        "description": "'any' to match one or more keywords, 'all' to match all.",
                         "schema": {
                             "type": "string",
                             "default": "any"
@@ -122,7 +297,7 @@
                     {
                         "name": "useGeocodeService",
                         "in": "query",
-                        "description": "set to 'true' to geocode location for either distance or searchWithinLocation searches.",
+                        "description": "Geocode the location for distance or boundary searches. Defaults to true on this operation. Note the POST operation reads a differently spelled property (useGecodeService) and defaults it to false.",
                         "schema": {
                             "type": "boolean",
                             "default": true
@@ -133,83 +308,62 @@
                     "200": {
                         "description": "OK",
                         "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SearchOutput"
-                                },
-                                "examples": {
-                                    "default": {
-                                        "value": null
-                                    }
-                                }
-                            },
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/SearchOutput"
                                 },
                                 "example": {
-                                    "count": 0,
+                                    "count": 177,
                                     "results": [
                                         {
-                                            "score": 0,
-                                            "highlights": {},
-                                            "semanticSearch": {
-                                                "rerankerScore": 0,
-                                                "captions": [
-                                                    {
-                                                        "text": "string",
-                                                        "highlights": "string",
-                                                        "additionalProperties": {}
-                                                    }
-                                                ]
-                                            },
-                                            "document": {
-                                                "idServiceAtLocation": "string",
-                                                "idOrganization": "string",
-                                                "idService": "string",
-                                                "idLocation": "string",
-                                                "nameOrganization": "string",
-                                                "nameService": "string",
-                                                "nameLocation": "string",
-                                                "nameServiceAtLocation": "string",
+                                            "score": 53.09,
+                                            "item": {
+                                                "serviceAtLocationId": "69799414",
+                                                "organizationId": "69799411",
+                                                "serviceId": "69799413",
+                                                "locationId": "69799412",
+                                                "organizationName": "Bethany Church Food Bank",
+                                                "serviceName": "Bloor West Food Bank",
+                                                "locationName": "Toronto",
+                                                "serviceAtLocationName": "Bloor West Food Bank at Toronto",
                                                 "alternateNamesOrganization": [
-                                                    "string"
+                                                    "Bethany Baptist Food Bank"
                                                 ],
                                                 "alternateNamesService": [
-                                                    "string"
+                                                    "Bethany Baptist Food Bank"
                                                 ],
-                                                "descriptionOrganization": "string",
-                                                "descriptionService": "string",
+                                                "organizationDescription": "string",
+                                                "serviceDescription": "Food bank, serving inside.",
                                                 "address": {
-                                                    "streetAddress": "string",
-                                                    "city": "string",
-                                                    "county": "string",
-                                                    "stateProvince": "string",
-                                                    "postalCode": "string",
-                                                    "country": "string",
-                                                    "latitude": "string",
-                                                    "longitude": "string"
+                                                    "address1": "1041 Pape Ave",
+                                                    "address2": null,
+                                                    "city": "Toronto",
+                                                    "county": "Toronto",
+                                                    "stateProvince": "ON",
+                                                    "postalCode": "M4K 3W1",
+                                                    "country": "Canada",
+                                                    "type": "Physical"
                                                 },
                                                 "taxonomy": [
                                                     {
-                                                        "taxonomyTerm": "string",
-                                                        "taxonomyCode": "string",
-                                                        "taxonomyTermLevel1": "string",
-                                                        "taxonomyTermLevel2": "string",
-                                                        "taxonomyTermLevel3": "string",
-                                                        "taxonomyTermLevel4": "string",
-                                                        "taxonomyTermLevel5": "string",
-                                                        "taxonomyTermLevel6": "string",
-                                                        "linkedTerm": "string",
-                                                        "linedTerm2": "string"
+                                                        "code": "BD-1800.2000",
+                                                        "term": "Food Banks",
+                                                        "level1Name": "Basic Needs",
+                                                        "level2Name": "Food",
+                                                        "level3Name": "Emergency Food",
+                                                        "level4Name": "Food Banks",
+                                                        "level5Name": null
                                                     }
                                                 ],
                                                 "serviceAreas": [
                                                     {
-                                                        "type": "string",
-                                                        "value": "string"
+                                                        "type": "County",
+                                                        "value": "Toronto"
                                                     }
-                                                ]
+                                                ],
+                                                "latitude": "43.6890",
+                                                "longitude": "-79.3450",
+                                                "status": null
                                             }
                                         }
                                     ],
@@ -221,68 +375,57 @@
                                     "$ref": "#/components/schemas/SearchOutput"
                                 },
                                 "example": {
-                                    "count": 0,
+                                    "count": 177,
                                     "results": [
                                         {
-                                            "score": 0,
-                                            "highlights": {},
-                                            "semanticSearch": {
-                                                "rerankerScore": 0,
-                                                "captions": [
-                                                    {
-                                                        "text": "string",
-                                                        "highlights": "string",
-                                                        "additionalProperties": {}
-                                                    }
-                                                ]
-                                            },
-                                            "document": {
-                                                "idServiceAtLocation": "string",
-                                                "idOrganization": "string",
-                                                "idService": "string",
-                                                "idLocation": "string",
-                                                "nameOrganization": "string",
-                                                "nameService": "string",
-                                                "nameLocation": "string",
-                                                "nameServiceAtLocation": "string",
+                                            "score": 53.09,
+                                            "item": {
+                                                "serviceAtLocationId": "69799414",
+                                                "organizationId": "69799411",
+                                                "serviceId": "69799413",
+                                                "locationId": "69799412",
+                                                "organizationName": "Bethany Church Food Bank",
+                                                "serviceName": "Bloor West Food Bank",
+                                                "locationName": "Toronto",
+                                                "serviceAtLocationName": "Bloor West Food Bank at Toronto",
                                                 "alternateNamesOrganization": [
-                                                    "string"
+                                                    "Bethany Baptist Food Bank"
                                                 ],
                                                 "alternateNamesService": [
-                                                    "string"
+                                                    "Bethany Baptist Food Bank"
                                                 ],
-                                                "descriptionOrganization": "string",
-                                                "descriptionService": "string",
+                                                "organizationDescription": "string",
+                                                "serviceDescription": "Food bank, serving inside.",
                                                 "address": {
-                                                    "streetAddress": "string",
-                                                    "city": "string",
-                                                    "county": "string",
-                                                    "stateProvince": "string",
-                                                    "postalCode": "string",
-                                                    "country": "string",
-                                                    "latitude": "string",
-                                                    "longitude": "string"
+                                                    "address1": "1041 Pape Ave",
+                                                    "address2": null,
+                                                    "city": "Toronto",
+                                                    "county": "Toronto",
+                                                    "stateProvince": "ON",
+                                                    "postalCode": "M4K 3W1",
+                                                    "country": "Canada",
+                                                    "type": "Physical"
                                                 },
                                                 "taxonomy": [
                                                     {
-                                                        "taxonomyTerm": "string",
-                                                        "taxonomyCode": "string",
-                                                        "taxonomyTermLevel1": "string",
-                                                        "taxonomyTermLevel2": "string",
-                                                        "taxonomyTermLevel3": "string",
-                                                        "taxonomyTermLevel4": "string",
-                                                        "taxonomyTermLevel5": "string",
-                                                        "taxonomyTermLevel6": "string",
-                                                        "linkedTerm": "string",
-                                                        "linedTerm2": "string"
+                                                        "code": "BD-1800.2000",
+                                                        "term": "Food Banks",
+                                                        "level1Name": "Basic Needs",
+                                                        "level2Name": "Food",
+                                                        "level3Name": "Emergency Food",
+                                                        "level4Name": "Food Banks",
+                                                        "level5Name": null
                                                     }
                                                 ],
                                                 "serviceAreas": [
                                                     {
-                                                        "type": "string",
-                                                        "value": "string"
+                                                        "type": "County",
+                                                        "value": "Toronto"
                                                     }
-                                                ]
+                                                ],
+                                                "latitude": "43.6890",
+                                                "longitude": "-79.3450",
+                                                "status": null
                                             }
                                         }
                                     ],
@@ -292,7 +435,7 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request - most commonly a missing 'location'."
                     },
                     "404": {
                         "description": "Not Found"
@@ -304,7 +447,7 @@
                     "Search"
                 ],
                 "summary": "Search",
-                "description": "Searches an index of 211 Ontario resource service at location records. \r\n\r\nRecords are returned in 'service-at-locationn' format, with all services and locations of the organization.\r\n\r\nThe total number of records in the index matching the request is identified as \"countAvailable\" at the top of the response. The values set for each parameter are also returned at the top of the response.\r\n\r\nNote: Active and Inactive organizations can be returned. Set the 'includeInactive' filter to true to return both active and inactive records. Default value is set to 'false', returning only active records.",
+                "description": "Searches the index of 211 Ontario service-at-location records, with filters, facets and field selection. `location` is optional here.\n\nGeocoding is OFF unless `useGecodeService` is true, and without it `location` and `distance` have no effect - the full index is returned with HTTP 200. Note the spelling of that property carefully.\n\nThe total number of matching records is returned as `count` when includeTotalCount is true.",
                 "operationId": "post-search-keyword",
                 "requestBody": {
                     "content": {
@@ -314,19 +457,21 @@
                             },
                             "example": {
                                 "search": "*",
-                                "location": "Grimsby",
+                                "location": "Toronto",
                                 "distance": 10,
-                                "searchWithinLocation": true,
-                                "searchWithinLocationType": "city",
                                 "useGecodeService": true,
                                 "size": 10,
                                 "skip": 0,
                                 "includeTotalCount": true,
-                                "filters": [],
+                                "filters": [
+                                    {
+                                        "field": "taxonomyTermLevel1",
+                                        "value": "Basic Needs"
+                                    }
+                                ],
                                 "facets": [
-                                    "taxonomy/taxonomyTermLevel1",
-                                    "taxonomy/taxonomyTermLevel2",
-                                    "address/stateProvince",
+                                    "taxonomy/taxonomyTermLevel1,count:50",
+                                    "taxonomy/taxonomyTermLevel2,count:100",
                                     "serviceAreas/value"
                                 ],
                                 "searchFields": [
@@ -338,17 +483,9 @@
                                 ],
                                 "selectFields": [
                                     "idServiceAtLocation",
-                                    "idService",
-                                    "idLocation",
-                                    "idOrganization",
                                     "nameOrganization",
-                                    "descriptionOrganization",
                                     "nameService",
                                     "descriptionService",
-                                    "nameLocation",
-                                    "nameServiceAtLocation",
-                                    "alternateNamesService",
-                                    "alternateNamesOrganization",
                                     "address",
                                     "taxonomy",
                                     "serviceAreas"
@@ -362,19 +499,21 @@
                             },
                             "example": {
                                 "search": "*",
-                                "location": "Grimsby",
+                                "location": "Toronto",
                                 "distance": 10,
-                                "searchWithinLocation": true,
-                                "searchWithinLocationType": "city",
                                 "useGecodeService": true,
                                 "size": 10,
                                 "skip": 0,
                                 "includeTotalCount": true,
-                                "filters": [],
+                                "filters": [
+                                    {
+                                        "field": "taxonomyTermLevel1",
+                                        "value": "Basic Needs"
+                                    }
+                                ],
                                 "facets": [
-                                    "taxonomy/taxonomyTermLevel1",
-                                    "taxonomy/taxonomyTermLevel2",
-                                    "address/stateProvince",
+                                    "taxonomy/taxonomyTermLevel1,count:50",
+                                    "taxonomy/taxonomyTermLevel2,count:100",
                                     "serviceAreas/value"
                                 ],
                                 "searchFields": [
@@ -386,17 +525,9 @@
                                 ],
                                 "selectFields": [
                                     "idServiceAtLocation",
-                                    "idService",
-                                    "idLocation",
-                                    "idOrganization",
                                     "nameOrganization",
-                                    "descriptionOrganization",
                                     "nameService",
                                     "descriptionService",
-                                    "nameLocation",
-                                    "nameServiceAtLocation",
-                                    "alternateNamesService",
-                                    "alternateNamesOrganization",
                                     "address",
                                     "taxonomy",
                                     "serviceAreas"
@@ -410,19 +541,21 @@
                             },
                             "example": {
                                 "search": "*",
-                                "location": "Grimsby",
+                                "location": "Toronto",
                                 "distance": 10,
-                                "searchWithinLocation": true,
-                                "searchWithinLocationType": "city",
                                 "useGecodeService": true,
                                 "size": 10,
                                 "skip": 0,
                                 "includeTotalCount": true,
-                                "filters": [],
+                                "filters": [
+                                    {
+                                        "field": "taxonomyTermLevel1",
+                                        "value": "Basic Needs"
+                                    }
+                                ],
                                 "facets": [
-                                    "taxonomy/taxonomyTermLevel1",
-                                    "taxonomy/taxonomyTermLevel2",
-                                    "address/stateProvince",
+                                    "taxonomy/taxonomyTermLevel1,count:50",
+                                    "taxonomy/taxonomyTermLevel2,count:100",
                                     "serviceAreas/value"
                                 ],
                                 "searchFields": [
@@ -434,17 +567,9 @@
                                 ],
                                 "selectFields": [
                                     "idServiceAtLocation",
-                                    "idService",
-                                    "idLocation",
-                                    "idOrganization",
                                     "nameOrganization",
-                                    "descriptionOrganization",
                                     "nameService",
                                     "descriptionService",
-                                    "nameLocation",
-                                    "nameServiceAtLocation",
-                                    "alternateNamesService",
-                                    "alternateNamesOrganization",
                                     "address",
                                     "taxonomy",
                                     "serviceAreas"
@@ -458,23 +583,65 @@
                     "200": {
                         "description": "OK",
                         "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SearchOutput"
-                                },
-                                "examples": {
-                                    "default": {
-                                        "value": null
-                                    }
-                                }
-                            },
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/SearchOutput"
                                 },
                                 "example": {
-                                    "count": 0,
-                                    "results": [],
+                                    "count": 177,
+                                    "results": [
+                                        {
+                                            "score": 53.09,
+                                            "item": {
+                                                "serviceAtLocationId": "69799414",
+                                                "organizationId": "69799411",
+                                                "serviceId": "69799413",
+                                                "locationId": "69799412",
+                                                "organizationName": "Bethany Church Food Bank",
+                                                "serviceName": "Bloor West Food Bank",
+                                                "locationName": "Toronto",
+                                                "serviceAtLocationName": "Bloor West Food Bank at Toronto",
+                                                "alternateNamesOrganization": [
+                                                    "Bethany Baptist Food Bank"
+                                                ],
+                                                "alternateNamesService": [
+                                                    "Bethany Baptist Food Bank"
+                                                ],
+                                                "organizationDescription": "string",
+                                                "serviceDescription": "Food bank, serving inside.",
+                                                "address": {
+                                                    "address1": "1041 Pape Ave",
+                                                    "address2": null,
+                                                    "city": "Toronto",
+                                                    "county": "Toronto",
+                                                    "stateProvince": "ON",
+                                                    "postalCode": "M4K 3W1",
+                                                    "country": "Canada",
+                                                    "type": "Physical"
+                                                },
+                                                "taxonomy": [
+                                                    {
+                                                        "code": "BD-1800.2000",
+                                                        "term": "Food Banks",
+                                                        "level1Name": "Basic Needs",
+                                                        "level2Name": "Food",
+                                                        "level3Name": "Emergency Food",
+                                                        "level4Name": "Food Banks",
+                                                        "level5Name": null
+                                                    }
+                                                ],
+                                                "serviceAreas": [
+                                                    {
+                                                        "type": "County",
+                                                        "value": "Toronto"
+                                                    }
+                                                ],
+                                                "latitude": "43.6890",
+                                                "longitude": "-79.3450",
+                                                "status": null
+                                            }
+                                        }
+                                    ],
                                     "facets": {}
                                 }
                             },
@@ -483,15 +650,67 @@
                                     "$ref": "#/components/schemas/SearchOutput"
                                 },
                                 "example": {
-                                    "count": 0,
-                                    "results": [],
+                                    "count": 177,
+                                    "results": [
+                                        {
+                                            "score": 53.09,
+                                            "item": {
+                                                "serviceAtLocationId": "69799414",
+                                                "organizationId": "69799411",
+                                                "serviceId": "69799413",
+                                                "locationId": "69799412",
+                                                "organizationName": "Bethany Church Food Bank",
+                                                "serviceName": "Bloor West Food Bank",
+                                                "locationName": "Toronto",
+                                                "serviceAtLocationName": "Bloor West Food Bank at Toronto",
+                                                "alternateNamesOrganization": [
+                                                    "Bethany Baptist Food Bank"
+                                                ],
+                                                "alternateNamesService": [
+                                                    "Bethany Baptist Food Bank"
+                                                ],
+                                                "organizationDescription": "string",
+                                                "serviceDescription": "Food bank, serving inside.",
+                                                "address": {
+                                                    "address1": "1041 Pape Ave",
+                                                    "address2": null,
+                                                    "city": "Toronto",
+                                                    "county": "Toronto",
+                                                    "stateProvince": "ON",
+                                                    "postalCode": "M4K 3W1",
+                                                    "country": "Canada",
+                                                    "type": "Physical"
+                                                },
+                                                "taxonomy": [
+                                                    {
+                                                        "code": "BD-1800.2000",
+                                                        "term": "Food Banks",
+                                                        "level1Name": "Basic Needs",
+                                                        "level2Name": "Food",
+                                                        "level3Name": "Emergency Food",
+                                                        "level4Name": "Food Banks",
+                                                        "level5Name": null
+                                                    }
+                                                ],
+                                                "serviceAreas": [
+                                                    {
+                                                        "type": "County",
+                                                        "value": "Toronto"
+                                                    }
+                                                ],
+                                                "latitude": "43.6890",
+                                                "longitude": "-79.3450",
+                                                "status": null
+                                            }
+                                        }
+                                    ],
                                     "facets": {}
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request - e.g. an invalid selectFields or searchFields entry."
                     },
                     "404": {
                         "description": "Not Found"
@@ -504,8 +723,13 @@
         "schemas": {
             "Address": {
                 "type": "object",
+                "description": "Address as returned by the API. Note the field names differ from earlier versions of this document: address1/address2 (not streetAddress), plus 'type'. Latitude and longitude are NOT inside this object - they are top-level properties of the search result item.",
                 "properties": {
-                    "streetAddress": {
+                    "address1": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "address2": {
                         "type": "string",
                         "nullable": true
                     },
@@ -529,11 +753,30 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "latitude": {
+                    "type": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "e.g. 'Physical'"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "Contact": {
+                "type": "object",
+                "properties": {
+                    "name": {
                         "type": "string",
                         "nullable": true
                     },
-                    "longitude": {
+                    "title": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "emailAddress": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phoneNumber": {
                         "type": "string",
                         "nullable": true
                     }
@@ -555,6 +798,28 @@
                 },
                 "additionalProperties": false
             },
+            "HoursStandard": {
+                "type": "object",
+                "description": "Structured opening hours. Populated for roughly a third of sampled records; fall back to the corresponding *HoursText field when this array is empty.",
+                "properties": {
+                    "day": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "e.g. 'Thu'"
+                    },
+                    "open": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "e.g. '1:15 PM'"
+                    },
+                    "close": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "e.g. '3:00 PM'"
+                    }
+                },
+                "additionalProperties": false
+            },
             "LocationType": {
                 "enum": [
                     "city",
@@ -565,132 +830,133 @@
                 ],
                 "type": "string"
             },
-            "QueryCaptionResult": {
+            "Phone": {
                 "type": "object",
                 "properties": {
-                    "text": {
+                    "number": {
                         "type": "string",
                         "nullable": true,
-                        "readOnly": true
+                        "description": "May include an extension inline, e.g. '416-479-0015 ext 202'."
                     },
-                    "highlights": {
+                    "name": {
                         "type": "string",
                         "nullable": true,
-                        "readOnly": true
+                        "description": "Label, e.g. 'Office'"
                     },
-                    "additionalProperties": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "nullable": true
-                        },
-                        "nullable": true,
-                        "readOnly": true
+                    "type": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "additionalProperties": false
             },
             "SearchFilter": {
                 "type": "object",
+                "description": "Identifies a field to filter and the value to filter it on. See the SearchInputDto 'filters' description for valid field names and for the silent-failure warning.",
                 "properties": {
                     "field": {
                         "type": "string",
-                        "description": "The name of the search field to filter on. The filter fields are:\r\nlist of filter fields here",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Field to filter on. Taxonomy filters use the bare leaf name (taxonomyTermLevel1, taxonomyTermLevel2, taxonomyTerm); address and service-area filters use the path form (address/city, address/stateProvince, serviceAreas/value)."
                     },
                     "value": {
-                        "description": "The value to filter the field on. Refer to examples for value format and sample data values.",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Value to filter on. Match is exact and case-sensitive, e.g. 'Basic Needs'."
                     }
                 },
-                "additionalProperties": false,
-                "description": "SearchFilter value that identifies the field to filter and the value of the field to be filtered on"
+                "additionalProperties": false
             },
             "SearchInputDto": {
                 "type": "object",
+                "description": "Configures search and results.",
                 "properties": {
                     "search": {
                         "type": "string",
-                        "description": "Enter one or more keywords to search the repository. Set SearchMode to 'Any' to match on at least one entered\r\nword, or SearchModel to 'All' to match on all words. If Hybrid search set to true, results will be returned\r\nregardless of SearchMode.",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "One or more keywords. Use '*' to match all records. Set searchMode to 'any' to match at least one word, 'all' to match every word."
                     },
                     "location": {
                         "type": "string",
-                        "description": "Location for search",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "City, county, postal code or province. Optional on POST (unlike GET, where it is required). Has NO effect unless useGecodeService is also set to true - see that field."
                     },
                     "distance": {
                         "type": "integer",
-                        "description": "Location for search",
-                        "format": "int32"
+                        "format": "int32",
+                        "description": "Radius in kilometres from the geocoded location. Requires useGecodeService: true. Ignored when searchWithinLocation is true."
                     },
                     "searchWithinLocation": {
                         "type": "boolean",
-                        "description": "If set to true (and geocoding service set to true), search for all resources within the locations geoPolygonlkSearch within Locationearch"
+                        "description": "Return resources within the geographic boundary of 'location' rather than within a radius. Requires useGecodeService: true."
                     },
                     "searchWithinLocationType": {
                         "$ref": "#/components/schemas/LocationType"
                     },
                     "useGecodeService": {
                         "type": "boolean",
-                        "description": "Set to 'true' to use built-in geo service to get geocode point and geocode polygon data, for use with geo.distance and geo.intersects functions."
+                        "default": false,
+                        "description": "Enables the geocoding service, which is what makes 'location', 'distance' and 'searchWithinLocation' take effect.\n\nWARNING - the property name is misspelled (it is missing the 'o' in 'Geocode'), and this misspelling is the name the API actually reads. The correctly spelled 'useGeocodeService' is silently ignored on POST, which causes location and distance to be dropped and returns the entire province with HTTP 200 and no error. The GET operation uses the correctly spelled 'useGeocodeService' and defaults it to true. Take care when porting a query between the two verbs."
                     },
                     "size": {
                         "type": "integer",
-                        "description": "Number of results to be returned",
                         "format": "int32",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Number of results to return."
                     },
                     "skip": {
                         "type": "integer",
-                        "description": "Number of results to skip",
                         "format": "int32",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Number of results to skip, for paging."
                     },
                     "includeTotalCount": {
                         "type": "boolean",
-                        "description": "Include total number of results available for return. If Size is less than value returned by total count,\r\nuse Skip to get remaining results",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Include the total number of matching records as 'count' at the top of the response."
                     },
                     "filters": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/SearchFilter"
                         },
-                        "description": "Filters that include/exclude results. Filters include:\r\nlist here",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Each entry is {field, value} and multiple entries are combined with AND.\n\nIMPORTANT - field naming is not uniform:\n  * Taxonomy filters use the BARE leaf name, with no 'taxonomy/' prefix: taxonomyTermLevel1, taxonomyTermLevel2, taxonomyTerm.\n  * Address and service-area filters use the PATH form: address/city, address/stateProvince, serviceAreas/value.\nUsing 'taxonomy/taxonomyTermLevel1' in a filter does NOT work - see the warning below.\n\nFields confirmed to filter: taxonomyTermLevel1, taxonomyTermLevel2, taxonomyTerm, address/city, address/stateProvince, serviceAreas/value.\n\nFields accepted but IGNORED (no error, no effect): taxonomyTermLevel3 through taxonomyTermLevel6, taxonomyCode, status, and any path-form taxonomy field.\n\nWARNING: unrecognised filter fields are silently discarded and the request returns HTTP 200 with the FULL unfiltered result set. A mistyped or unsupported filter therefore looks like a working filter that matched everything. Always sanity-check the returned count against an unfiltered baseline. To narrow by a taxonomy node deeper than level 2, filter on taxonomyTerm instead."
                     },
                     "facets": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         },
-                        "description": "Facets returned with results that can be used to resubmit search with filter values",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Facets to return alongside results, for building filter UIs. Facets use the PATH form, e.g. 'taxonomy/taxonomyTermLevel1', 'taxonomy/taxonomyTermLevel2', 'address/stateProvince', 'serviceAreas/value'. Append ',count:N' to raise the number of facet values returned (the default is 10), e.g. 'taxonomy/taxonomyTermLevel1,count:50'. Note that a value valid as a facet is not necessarily valid as a filter - compare the filters description."
                     },
                     "searchFields": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         },
-                        "description": "List of fields that will be searched in 'simple text' search. Full list of fields is:",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Fields searched by the keyword query. Valid values (these are INDEX field names and differ from the names in the response - see SearchResultItem): idServiceAtLocation, idOrganization, idService, idLocation, nameOrganization, nameService, nameLocation, nameServiceAtLocation, alternateNamesOrganization, alternateNamesService, descriptionOrganization, descriptionService, address, taxonomy, serviceAreas, status. Sub-paths are also accepted: address/streetAddress, address/city, address/county, address/stateProvince, address/postalCode, address/country, address/latitude, address/longitude, taxonomy/taxonomyTerm, taxonomy/taxonomyCode, taxonomy/taxonomyTermLevel1 through taxonomy/taxonomyTermLevel6, taxonomy/linkedTerm, serviceAreas/type, serviceAreas/value. Invalid names cause HTTP 400. 'latitude', 'longitude' and 'score' are NOT valid here even though they appear in responses."
                     },
                     "selectFields": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         },
-                        "description": "List of fields to return in search results. Full list of fields is:\r\nlist fields here",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Fields to populate in search results. Unrequested properties are returned as null rather than omitted, so the response shape is unchanged. Valid values (these are INDEX field names and differ from the names in the response - see SearchResultItem): idServiceAtLocation, idOrganization, idService, idLocation, nameOrganization, nameService, nameLocation, nameServiceAtLocation, alternateNamesOrganization, alternateNamesService, descriptionOrganization, descriptionService, address, taxonomy, serviceAreas, status. Sub-paths are also accepted: address/streetAddress, address/city, address/county, address/stateProvince, address/postalCode, address/country, address/latitude, address/longitude, taxonomy/taxonomyTerm, taxonomy/taxonomyCode, taxonomy/taxonomyTermLevel1 through taxonomy/taxonomyTermLevel6, taxonomy/linkedTerm, serviceAreas/type, serviceAreas/value. Invalid names cause HTTP 400. 'latitude', 'longitude' and 'score' are NOT valid here even though they appear in responses."
                     },
                     "searchMode": {
                         "type": "string",
-                        "description": "Set to 'any' to match one or more entered search words in simple text search. Set to 'all' to match on all words.",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "'any' to match one or more search words, 'all' to match all."
                     }
                 },
-                "additionalProperties": false,
-                "description": "Configures search and results"
+                "additionalProperties": false
             },
             "SearchOutput": {
                 "type": "object",
@@ -698,12 +964,13 @@
                     "count": {
                         "type": "integer",
                         "format": "int64",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Total matching records, when includeTotalCount is true."
                     },
                     "results": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/SearchResourceSearchResult"
+                            "$ref": "#/components/schemas/SearchResult"
                         },
                         "nullable": true
                     },
@@ -715,43 +982,61 @@
                                 "$ref": "#/components/schemas/FacetValue"
                             }
                         },
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Keyed by the requested facet expression, e.g. 'taxonomy/taxonomyTermLevel1'."
                     }
                 },
                 "additionalProperties": false
             },
-            "SearchResource": {
+            "SearchResult": {
                 "type": "object",
+                "description": "A single search hit. The record is under 'item' - earlier revisions of this document called it 'document'.",
                 "properties": {
-                    "idServiceAtLocation": {
+                    "score": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "item": {
+                        "$ref": "#/components/schemas/SearchResultItem"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SearchResultItem": {
+                "type": "object",
+                "description": "A service-at-location record as returned in search results. This object contains exactly 18 properties and does NOT include contact information (phone, email, website, hours, languages, accessibility). Those fields are not present in the search index at all - retrieve them per record from GET /serviceatlocation/{id}.",
+                "properties": {
+                    "serviceAtLocationId": {
                         "type": "string",
                         "nullable": true
                     },
-                    "idOrganization": {
+                    "organizationId": {
                         "type": "string",
                         "nullable": true
                     },
-                    "idService": {
+                    "serviceId": {
                         "type": "string",
                         "nullable": true
                     },
-                    "idLocation": {
+                    "locationId": {
                         "type": "string",
                         "nullable": true
                     },
-                    "nameOrganization": {
+                    "organizationName": {
                         "type": "string",
                         "nullable": true
                     },
-                    "nameService": {
+                    "serviceName": {
                         "type": "string",
                         "nullable": true
                     },
-                    "nameLocation": {
+                    "locationName": {
                         "type": "string",
                         "nullable": true
                     },
-                    "nameServiceAtLocation": {
+                    "serviceAtLocationName": {
                         "type": "string",
                         "nullable": true
                     },
@@ -769,11 +1054,11 @@
                         },
                         "nullable": true
                     },
-                    "descriptionOrganization": {
+                    "organizationDescription": {
                         "type": "string",
                         "nullable": true
                     },
-                    "descriptionService": {
+                    "serviceDescription": {
                         "type": "string",
                         "nullable": true
                     },
@@ -793,56 +1078,19 @@
                             "$ref": "#/components/schemas/ServiceArea"
                         },
                         "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "SearchResourceSearchResult": {
-                "type": "object",
-                "properties": {
-                    "score": {
-                        "type": "number",
-                        "format": "double",
-                        "nullable": true,
-                        "readOnly": true
                     },
-                    "highlights": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "nullable": true
-                        },
-                        "nullable": true,
-                        "readOnly": true
+                    "latitude": {
+                        "type": "string",
+                        "nullable": true
                     },
-                    "semanticSearch": {
-                        "$ref": "#/components/schemas/SemanticSearchResult"
+                    "longitude": {
+                        "type": "string",
+                        "nullable": true
                     },
-                    "document": {
-                        "$ref": "#/components/schemas/SearchResource"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "SemanticSearchResult": {
-                "type": "object",
-                "properties": {
-                    "rerankerScore": {
-                        "type": "number",
-                        "format": "double",
+                    "status": {
+                        "type": "string",
                         "nullable": true,
-                        "readOnly": true
-                    },
-                    "captions": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/QueryCaptionResult"
-                        },
-                        "nullable": true,
-                        "readOnly": true
+                        "description": "Observed as null in all sampled records. Not filterable."
                     }
                 },
                 "additionalProperties": false
@@ -852,55 +1100,217 @@
                 "properties": {
                     "type": {
                         "type": "string",
-                        "nullable": true
+                        "nullable": true,
+                        "description": "e.g. 'County'"
                     },
                     "value": {
                         "type": "string",
+                        "nullable": true,
+                        "description": "e.g. 'Toronto'"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ServiceAtLocationDetail": {
+                "type": "object",
+                "description": "Full service-at-location record (31 properties). This is the only place contact details, hours, languages and accessibility information are exposed.",
+                "properties": {
+                    "serviceAtLocationId": {
+                        "type": "string",
                         "nullable": true
+                    },
+                    "organizationId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "serviceId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "locationId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "serviceAtLocationName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "organizationName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "serviceName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "locationName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "serviceAtLocationStatus": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "e.g. 'Active'"
+                    },
+                    "organizationStatus": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "serviceStatus": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "locationStatus": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "serviceAlternateNames": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "serviceDescription": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "taxonomy": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Taxonomy"
+                        },
+                        "nullable": true
+                    },
+                    "serviceHoursText": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Free-text hours. More widely populated than serviceHoursStandard; use as the display fallback."
+                    },
+                    "serviceHoursStandard": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/HoursStandard"
+                        },
+                        "nullable": true
+                    },
+                    "locationHoursText": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "locationHoursStandard": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/HoursStandard"
+                        },
+                        "nullable": true,
+                        "description": "Not observed populated in sampled records."
+                    },
+                    "website": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "fees": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Free text, e.g. 'None'"
+                    },
+                    "applicationProcess": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "documentsRequired": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "languagesOffered": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true,
+                        "description": "Language names, e.g. 'English', 'French', 'Arabic'. Available per record on this endpoint only - it is not in the search index and therefore cannot be used as a search filter or facet."
+                    },
+                    "serviceAreas": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ServiceArea"
+                        },
+                        "nullable": true
+                    },
+                    "servicePhones": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Phone"
+                        },
+                        "nullable": true
+                    },
+                    "serviceContacts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Contact"
+                        },
+                        "nullable": true,
+                        "description": "Sparsely populated; treat as optional."
+                    },
+                    "locationPhones": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Phone"
+                        },
+                        "nullable": true,
+                        "description": "Not observed populated in sampled records."
+                    },
+                    "locationContacts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Contact"
+                        },
+                        "nullable": true,
+                        "description": "Not observed populated in sampled records."
+                    },
+                    "disabilitiesAccess": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Free-text accessibility note, e.g. 'Wheelchair accessible'."
                     }
                 },
                 "additionalProperties": false
             },
             "Taxonomy": {
                 "type": "object",
+                "description": "Taxonomy entry as returned by the API. Output names are code/term/levelNName. The corresponding INPUT names used by filters, facets, searchFields and selectFields are different - see SearchInputDto.",
                 "properties": {
-                    "taxonomyTerm": {
+                    "code": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "e.g. 'BD-1800.2000'"
+                    },
+                    "term": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "e.g. 'Food Banks'"
+                    },
+                    "level1Name": {
                         "type": "string",
                         "nullable": true
                     },
-                    "taxonomyCode": {
+                    "level2Name": {
                         "type": "string",
                         "nullable": true
                     },
-                    "taxonomyTermLevel1": {
+                    "level3Name": {
                         "type": "string",
                         "nullable": true
                     },
-                    "taxonomyTermLevel2": {
+                    "level4Name": {
                         "type": "string",
                         "nullable": true
                     },
-                    "taxonomyTermLevel3": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "taxonomyTermLevel4": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "taxonomyTermLevel5": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "taxonomyTermLevel6": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "linkedTerm": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "linedTerm2": {
+                    "level5Name": {
                         "type": "string",
                         "nullable": true
                     }
